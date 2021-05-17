@@ -1,4 +1,4 @@
-# assignment6
+# Camera, Gallery & REST API Integration
 
 A new Flutter project.
 
