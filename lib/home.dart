@@ -1,10 +1,10 @@
-import 'dart:convert';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:io';
+import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:http/http.dart' as http;
 
 class Home extends StatefulWidget {
   @override
@@ -19,6 +19,7 @@ class Homepage extends State<Home> {
   String msg = '';
   bool flag = false;
 
+  // picking image from phone
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await picker.getImage(source: source);
     setState(() {
@@ -32,6 +33,22 @@ class Homepage extends State<Home> {
     });
   }
 
+  // cropping image
+  Future<void> _cropImage() async {
+    if (_imageFile != null) {
+      File cropped = await ImageCropper.cropImage(sourcePath: _imageFile.path);
+      setState(() {
+        msg = '';
+        _imageFile = cropped ?? _imageFile;
+      });
+    } else {
+      setState(() {
+        msg = 'Select an image first.';
+      });
+    }
+  }
+
+  // sending image to server
   Future sendImage() async {
     if (_imageFile != null) {
       base64Image = base64Encode(_imageFile.readAsBytesSync());
@@ -124,7 +141,7 @@ class Homepage extends State<Home> {
                     Row(
                       children: [
                         Container(
-                            width: 150,
+                            width: 100,
                             margin:
                                 EdgeInsets.only(left: 30, top: 20, bottom: 20),
                             child: ElevatedButton(
@@ -145,7 +162,25 @@ class Homepage extends State<Home> {
                               },
                             )),
                         Container(
-                            width: 150,
+                            width: 80,
+                            margin:
+                                EdgeInsets.only(left: 10, top: 20, bottom: 20),
+                            child: ElevatedButton(
+                              child: Text('Crop',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                  )),
+                              style: ElevatedButton.styleFrom(
+                                  primary: Colors.blueAccent[700],
+                                  onPrimary: Colors.white,
+                                  elevation: 3,
+                                  shadowColor: Colors.blueAccent),
+                              onPressed: () async {
+                                await _cropImage();
+                              },
+                            )),
+                        Container(
+                            width: 100,
                             margin: EdgeInsets.only(
                                 left: 10, top: 20, bottom: 20, right: 30),
                             child: ElevatedButton(
