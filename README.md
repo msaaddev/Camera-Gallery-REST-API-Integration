@@ -1,6 +1,6 @@
 # Camera, Gallery & REST API Integration
 
-A new Flutter project.
+A flutter android app that allows you to use a picture from gallery or take a picture from Gallery and then send it to the server.
 
 ## Getting Started
 
