@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:assignment6/image_gallery.dart';
+import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 
@@ -12,6 +14,10 @@ class Home extends StatefulWidget {
 class Homepage extends State<Home> {
   File _imageFile;
   final picker = ImagePicker();
+  String base64Image;
+  String imageName;
+  String msg = '';
+  bool flag = false;
 
   Future<void> _pickImage(ImageSource source) async {
     final pickedFile = await picker.getImage(source: source);
@@ -19,9 +25,35 @@ class Homepage extends State<Home> {
       if (pickedFile != null) {
         _imageFile = File(pickedFile.path);
       } else {
-        print('No image selected.');
+        setState(() {
+          msg = 'No Image Selected';
+        });
       }
     });
+  }
+
+  Future sendImage() async {
+    if (_imageFile != null) {
+      base64Image = base64Encode(_imageFile.readAsBytesSync());
+      imageName = _imageFile.path.split('/').last;
+      final apiURL = Uri.parse('https://pcc.edu.pk/ws/file_upload.php');
+      http.post(apiURL, body: {
+        "image": base64Image,
+        "name": imageName,
+      }).then((res) {
+        var result = jsonDecode(res.body);
+        print(result);
+        setState(() {
+          msg = result['message'];
+        });
+      }).catchError((onError) => setState(() {
+            msg = 'Error uploading the image';
+          }));
+    } else {
+      setState(() {
+        msg = 'Select An Image First';
+      });
+    }
   }
 
   @override
@@ -107,6 +139,7 @@ class Homepage extends State<Home> {
                                   shadowColor: Colors.blueAccent),
                               onPressed: () {
                                 setState(() {
+                                  msg = '';
                                   _imageFile = null;
                                 });
                               },
@@ -125,9 +158,17 @@ class Homepage extends State<Home> {
                                   onPrimary: Colors.white,
                                   elevation: 3,
                                   shadowColor: Colors.blueAccent),
-                              onPressed: () {},
+                              onPressed: () async {
+                                await sendImage();
+                              },
                             ))
                       ],
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 20),
+                      child: Text(msg != '' ? '$msg' : '',
+                          style: TextStyle(
+                              fontSize: 20, fontWeight: FontWeight.w500)),
                     )
                   ],
                 ),

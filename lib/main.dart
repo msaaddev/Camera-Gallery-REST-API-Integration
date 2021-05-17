@@ -13,7 +13,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Gallery & REST API Integration'),
+      home: MyHomePage(title: 'Camera, Gallery & REST API Integration'),
     );
   }
 }
